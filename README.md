@@ -28,27 +28,33 @@
 ```mermaid
 graph TB
   subgraph 使用者端
-    BROWSER[🌐 前端瀏覽器 (Vue)]
+    BROWSER[前端瀏覽器 - Vue]
   end
-  subgraph API_Gateway
-    AXIOS[Axios SDK / API 請求攔截器]
+
+  subgraph API 通訊層
+    AXIOS[Axios 請求攔截器]
   end
-  subgraph 後端服務
-    LARAVEL[Laravel API (模組化 + RBAC)]
-    FASTAPI[FastAPI 推薦引擎]
+
+  subgraph 後端服務層
+    LARAVEL[Laravel API - 模組化 / RBAC / 多租戶]
+    FASTAPI[FastAPI 推薦服務]
   end
-  subgraph 資料存儲層
-    MYSQL[(MySQL 資料庫)]
-    REDIS[(Redis 快取)]
+
+  subgraph 資料儲存層
+    MYSQL[MySQL 資料庫]
+    REDIS[Redis 快取]
   end
+
   BROWSER --> AXIOS
   AXIOS --> LARAVEL
-  LARAVEL -->|授權驗證 / 多租戶| LARAVEL
-  LARAVEL -->|呼叫推薦 API| FASTAPI
-  FASTAPI --> REDIS
-  FASTAPI --> MYSQL
+  LARAVEL -->|推薦請求| FASTAPI
   LARAVEL --> MYSQL
   LARAVEL --> REDIS
+  FASTAPI --> REDIS
+  FASTAPI --> MYSQL
+  LARAVEL -->|JSON 回應| AXIOS
+  AXIOS -->|畫面更新| BROWSER
+
 ```
 
 ### 📖 架構說明
