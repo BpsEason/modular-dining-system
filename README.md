@@ -28,34 +28,40 @@
 ```mermaid
 graph TB
   subgraph 使用者端
-    BROWSER[前端瀏覽器 - Vue]
+    BROWSER[🌐 前端瀏覽器 (Vue)]
   end
-
-  subgraph API 通訊層
-    AXIOS[Axios 請求攔截器]
+  subgraph API_Gateway
+    AXIOS[Axios SDK / API 請求攔截器]
   end
-
-  subgraph 後端服務層
-    LARAVEL[Laravel API - 模組化 / RBAC / 多租戶]
-    FASTAPI[FastAPI 推薦服務]
+  subgraph 後端服務
+    LARAVEL[Laravel API (模組化 + RBAC)]
+    FASTAPI[FastAPI 推薦引擎]
   end
-
-  subgraph 資料儲存層
-    MYSQL[MySQL 資料庫]
-    REDIS[Redis 快取]
+  subgraph 資料存儲層
+    MYSQL[(MySQL 資料庫)]
+    REDIS[(Redis 快取)]
   end
-
   BROWSER --> AXIOS
   AXIOS --> LARAVEL
-  LARAVEL -->|推薦請求| FASTAPI
-  LARAVEL --> MYSQL
-  LARAVEL --> REDIS
+  LARAVEL -->|授權驗證 / 多租戶| LARAVEL
+  LARAVEL -->|呼叫推薦 API| FASTAPI
   FASTAPI --> REDIS
   FASTAPI --> MYSQL
-  LARAVEL -->|JSON 回應| AXIOS
-  AXIOS -->|畫面更新| BROWSER
-
+  LARAVEL --> MYSQL
+  LARAVEL --> REDIS
 ```
+
+### 📖 架構說明
+
+本系統採用前後端分離、多服務整合的微服務架構：
+
+- **Vue 前端** 提供響應式儀表板，透過 Axios 傳遞 JWT 與 `X-Tenant-ID` 請求頭，呼叫 Laravel API。
+- **Laravel** 為核心 API 服務，負責權限控管（RBAC）、模組化業務邏輯（如客戶、訂單、通知）、多租戶隔離與資料一致性驗證。
+- **FastAPI 推薦引擎** 作為獨立微服務，透過協同過濾模型（KNN）與 Redis 快取回傳個性化推薦結果。
+- **資料存儲層** 採用 MySQL（儲存業務資料）與 Redis（快取與佇列），達到高效處理與容錯能力。
+- **通訊流程** 為單向請求、雙向回應設計，從 Vue → API Gateway（Axios）→ Laravel → FastAPI → 資料層，再由 Laravel 回傳結果至前端。
+
+整體架構強調模組解耦、彈性擴充、效能優先與開發維運友善，適用於中大型連鎖餐飲品牌的 SaaS 平台場景。
 
 ## 環境需求
 - **Docker** 與 **Docker Compose** (v2.0+)
