@@ -57,8 +57,6 @@ graph TB
 
 ```
 
-**修正說明**：移除 `end` 關鍵字，使用正確的 `subgraph` 語法，並為 subgraph 添加唯一標識符（如 `API_Gateway`），以符合 Mermaid 的規範（參考 [GitHub Mermaid 指南](https://docs.github.com/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams)）。
-
 ## 環境需求
 - **Docker** 與 **Docker Compose** (v2.0+)
 - **Node.js** (v18.x)
