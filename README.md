@@ -36,23 +36,23 @@ graph TB
   end
 
   subgraph 後端服務層
-    LARAVEL[Laravel API - 模組化與 RBAC]
-    FASTAPI[FastAPI 智能推薦服務]
+    LARAVEL[Laravel API - 模組化 / RBAC / 多租戶]
+    FASTAPI[FastAPI 推薦服務]
   end
 
   subgraph 資料儲存層
     MYSQL[MySQL 資料庫]
-    REDIS[Redis 快取系統]
+    REDIS[Redis 快取]
   end
 
   BROWSER --> AXIOS
   AXIOS --> LARAVEL
-  LARAVEL -->|驗證與租戶識別| LARAVEL
-  LARAVEL -->|呼叫推薦引擎| FASTAPI
+  LARAVEL -->|推薦請求| FASTAPI
   LARAVEL --> MYSQL
   LARAVEL --> REDIS
   FASTAPI --> REDIS
   FASTAPI --> MYSQL
+
 
 ```
 
