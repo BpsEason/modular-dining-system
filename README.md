@@ -52,7 +52,8 @@ graph TB
   LARAVEL --> REDIS
   FASTAPI --> REDIS
   FASTAPI --> MYSQL
-
+  LARAVEL -->|JSON 回應| AXIOS
+  AXIOS -->|畫面更新| BROWSER
 
 ```
 
