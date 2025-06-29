@@ -28,32 +28,30 @@
 ```mermaid
 graph TB
   subgraph 使用者端
-    BROWSER[前端瀏覽器 - Vue]
+    BROWSER[🌐 前端瀏覽器 (Vue)]
   end
-
-  subgraph API Gateway
-    AXIOS[Axios 請求攔截器]
+  subgraph API_Gateway
+    AXIOS[Axios SDK / API 請求攔截器]
   end
-
   subgraph 後端服務
-    LARAVEL[Laravel API - 模組化 RBAC]
+    LARAVEL[Laravel API (模組化 + RBAC)]
     FASTAPI[FastAPI 推薦引擎]
   end
-
-  subgraph 資料儲存層
-    MYSQL[MySQL 資料庫]
-    REDIS[Redis 快取]
+  subgraph 資料存儲層
+    MYSQL[(MySQL 資料庫)]
+    REDIS[(Redis 快取)]
   end
-
   BROWSER --> AXIOS
   AXIOS --> LARAVEL
-  LARAVEL -->|驗證與租戶識別| LARAVEL
+  LARAVEL -->|授權驗證 / 多租戶| LARAVEL
   LARAVEL -->|呼叫推薦 API| FASTAPI
   FASTAPI --> REDIS
   FASTAPI --> MYSQL
   LARAVEL --> MYSQL
   LARAVEL --> REDIS
 ```
+
+**修正說明**：移除 `end` 關鍵字，使用正確的 `subgraph` 語法，並為 subgraph 添加唯一標識符（如 `API_Gateway`），以符合 Mermaid 的規範（參考 [GitHub Mermaid 指南](https://docs.github.com/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams)）。
 
 ## 環境需求
 - **Docker** 與 **Docker Compose** (v2.0+)
@@ -156,7 +154,7 @@ modular-dining-system/
 **Q1: 為什麼選擇 Laravel + FastAPI 的組合，而不是單純使用 Laravel？**
 
 **A**: Laravel 負責核心業務邏輯（如 CRUD、RBAC、多租戶），提供穩定的 API 與模組化架構；FastAPI 專注於高效能的 AI 推薦引擎，憑藉異步特性與 Python 生態，提供低延遲與高吞吐量。  
-- **優勢**：分工明確，FastAPI 適合機器學習任務，Laravel 擅長業務邏輯。
+- **優勢**：分工明確，FastAPI 適合機器學習任務，Laravel 擅長業務邏輯。  
 - **挑戰**：跨服務通訊增加網路延遲，需優化 API 設計與認證一致性。
 
 ---
@@ -282,7 +280,7 @@ class SendPushNotification implements ShouldQueue
 
 **A**:  
 - **快取**：Redis 緩存熱點數據。  
-- **非同步**：耗時任務（如通知）透過 Redis 佇列處理。  
+- **非同步**：耗時任務透過 Redis 佇列處理。  
 - **資料庫**：外鍵約束與索引優化查詢。  
 - **監控**：`LogApiRequest` 中間件記錄請求日誌。
 
