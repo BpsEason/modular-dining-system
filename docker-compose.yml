@@ -1,0 +1,66 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./laravel-app:/var/www/html
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php-fpm
+  php-fpm:
+    build:
+      context: ./laravel-app
+      dockerfile: Dockerfile
+    volumes:
+      - ./laravel-app:/var/www/html
+    environment:
+      - DB_HOST=mysql
+      - - DB_DATABASE=restaurant_saas
+      + DB_DATABASE=modular_dining_system
+      - DB_USERNAME=root
+      - DB_PASSWORD=root_password
+      - REDIS_HOST=redis
+    depends_on:
+      - mysql
+      - redis
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=modular_dining_system
+    volumes:
+      - mysql_data:/var/lib/mysql
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+  fastapi:
+    build:
+      context: ./fastapi-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+  vue-frontend:
+    build:
+      context: ./vue-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./vue-frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_BASE_URL=http://localhost/api/v1
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  mysql_data:
+

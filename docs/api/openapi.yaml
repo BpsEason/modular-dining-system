@@ -1,0 +1,364 @@
+openapi: 3.0.3
+info:
+  title: 餐廳 SaaS API
+  version: 1.0.0
+  description: 模組化餐廳 SaaS 系統的 OpenAPI 規範。
+servers:
+  - url: http://localhost/api/v1
+    description: Laravel 後端
+  - url: http://localhost:8000/api/v1
+    description: FastAPI 推薦服務
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 40302
+        message:
+          type: string
+          example: 權限不足: 您沒有所需的權限 (customer.create)。
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        guard_name:
+          type: string
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        tenant_id:
+          type: integer
+        table_id:
+          type: integer
+        customer_id:
+          type: integer
+          nullable: true
+        total_amount:
+          type: number
+          format: float
+        status:
+          type: string
+        ordered_at:
+          type: string
+          format: date-time
+    RecommendationResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              score:
+                type: number
+        strategy:
+          type: string
+paths:
+  /customers:
+    get:
+      tags:
+        - CustomerProfile
+      security:
+        - bearerAuth: []
+      summary: 獲取所有顧客
+      description: |
+        需要 `customer.read` 權限。
+      responses:
+        '200':
+          description: 顧客列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+        '403':
+          description: 禁止訪問 - 缺乏 `customer.read` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - CustomerProfile
+      security:
+        - bearerAuth: []
+      summary: 創建新顧客
+      description: |
+        需要 `customer.create` 權限。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+      responses:
+        '201':
+          description: 顧客已創建
+        '403':
+          description: 禁止訪問 - 缺乏 `customer.create` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /customers/{id}:
+    get:
+      tags:
+        - CustomerProfile
+      security:
+        - bearerAuth: []
+      summary: 根據 ID 獲取特定顧客
+      description: |
+        需要 `customer.read` 權限。
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 要檢索的顧客 ID
+      responses:
+        '200':
+          description: 顧客資料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: 顧客未找到
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 禁止訪問 - 缺乏 `customer.read` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /orders:
+    get:
+      tags:
+        - POS
+      security:
+        - bearerAuth: []
+      summary: 獲取所有訂單
+      description: |
+        需要 `order.read` 權限。
+      responses:
+        '200':
+          description: 訂單列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+        '403':
+          description: 禁止訪問 - 缺乏 `order.read` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - POS
+      security:
+        - bearerAuth: []
+      summary: 創建新訂單
+      description: |
+        需要 `order.create` 權限。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                table_id:
+                  type: integer
+                customer_id:
+                  type: integer
+                  nullable: true
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      menu_id:
+                        type: integer
+                      quantity:
+                        type: integer
+      responses:
+        '201':
+          description: 訂單已創建
+        '403':
+          description: 禁止訪問 - 缺乏 `order.create` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /orders/{id}:
+    get:
+      tags:
+        - POS
+      security:
+        - bearerAuth: []
+      summary: 根據 ID 獲取特定訂單
+      description: |
+        需要 `order.read` 權限。
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: 要檢索的訂單 ID
+      responses:
+        '200':
+          description: 訂單資料
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: 訂單未找到
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: 禁止訪問 - 缺乏 `order.read` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /coupons:
+    post:
+      tags:
+        - Marketing
+      security:
+        - bearerAuth: []
+      summary: 創建新優惠券
+      description: |
+        需要 `coupon.create` 權限。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                code:
+                  type: string
+                discount:
+                  type: number
+                expires_at:
+                  type: string
+                  format: date-time
+      responses:
+        '201':
+          description: 優惠券已創建
+        '403':
+          description: 禁止訪問 - 缺乏 `coupon.create` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /notifications/send:
+    post:
+      tags:
+        - Marketing
+      security:
+        - bearerAuth: []
+      summary: 向用戶分派推播通知
+      description: |
+        需要 `notification.send` 權限。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: integer
+                  description: 要通知的用戶 ID。
+                message:
+                  type: string
+                  description: 通知訊息。
+      responses:
+        '200':
+          description: 通知已送入佇列。
+        '422':
+          description: 驗證錯誤。
+        '403':
+          description: 禁止訪問 - 缺乏 `notification.send` 權限
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /recommendations/{customerId}:
+    get:
+      tags:
+        - Recommendation
+      summary: 獲取個人化菜單推薦
+      parameters:
+        - in: path
+          name: customerId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 推薦項目
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationResponse'
+        '404':
+          description: 顧客未找到
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
