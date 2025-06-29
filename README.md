@@ -27,28 +27,33 @@
 
 ```mermaid
 graph TB
-  subgraph User_Frontend
-    BROWSER[🌐 前端瀏覽器 Vue]
+  subgraph 使用者端
+    BROWSER[前端瀏覽器 - Vue]
   end
-  subgraph API_Gateway
-    AXIOS[Axios SDK API 請求攔截器]
+
+  subgraph API 通訊層
+    AXIOS[Axios 請求攔截器]
   end
-  subgraph Backend_Services
-    LARAVEL[Laravel API 模組化 RBAC]
-    FASTAPI[FastAPI 推薦引擎]
+
+  subgraph 後端服務層
+    LARAVEL[Laravel API - 模組化與 RBAC]
+    FASTAPI[FastAPI 智能推薦服務]
   end
-  subgraph Data_Storage
+
+  subgraph 資料儲存層
     MYSQL[MySQL 資料庫]
-    REDIS[Redis 快取]
+    REDIS[Redis 快取系統]
   end
+
   BROWSER --> AXIOS
   AXIOS --> LARAVEL
-  LARAVEL -->|授權驗證 多租戶| LARAVEL
-  LARAVEL -->|呼叫推薦 API| FASTAPI
-  FASTAPI --> REDIS
-  FASTAPI --> MYSQL
+  LARAVEL -->|驗證與租戶識別| LARAVEL
+  LARAVEL -->|呼叫推薦引擎| FASTAPI
   LARAVEL --> MYSQL
   LARAVEL --> REDIS
+  FASTAPI --> REDIS
+  FASTAPI --> MYSQL
+
 ```
 
 **修正說明**：移除 `end` 關鍵字，使用正確的 `subgraph` 語法，並為 subgraph 添加唯一標識符（如 `API_Gateway`），以符合 Mermaid 的規範（參考 [GitHub Mermaid 指南](https://docs.github.com/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams#creating-mermaid-diagrams)）。
