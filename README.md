@@ -586,6 +586,3 @@ GitHub Actions 實現高效 DevOps：
 4. 推送分支（`git push origin feature/YourFeature`）。
 5. 開啟 Pull Request。  
 問題反饋請於 GitHub 提交 Issue。
-
-## 授權
-採用 **MIT 授權**。
